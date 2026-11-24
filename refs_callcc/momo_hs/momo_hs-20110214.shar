@@ -1,0 +1,874 @@
+#!/bin/sh
+# This is a shell archive (produced by GNU sharutils 4.10).
+# To extract the files from this archive, save it to some FILE, remove
+# everything before the `#!/bin/sh' line above, then type `sh FILE'.
+#
+lock_dir=_sh05132
+# Made on 2011-02-14 16:14 JST by <http://jrf.cocolog-nifty.com/software/>.
+# Source directory was `/tmp/momo_hs'.
+#
+# Existing files will *not* be overwritten, unless `-c' is specified.
+#
+# This shar contains:
+# length mode       name
+# ------ ---------- ------------------------------------------
+#   2824 -rw-r--r-- momo.hs
+#   2274 -rw-r--r-- momo_0.hs
+#   1427 -rw-r--r-- example_goto.hs
+#   3023 -rw-r--r-- example_goto_2.hs
+#   4233 -rw-r--r-- example_goto_3.hs
+#   4315 -rw-r--r-- example_goto_4.hs
+#    728 -rw-r--r-- README.momo_hs.txt
+#
+MD5SUM=${MD5SUM-md5sum}
+f=`${MD5SUM} --version | egrep '^md5sum .*(core|text)utils'`
+test -n "${f}" && md5check=true || md5check=false
+${md5check} || \
+  echo 'Note: not verifying md5sums.  Consider installing GNU coreutils.'
+test "X$1" = "X-c" && keep_file=false || keep_file=true
+echo=echo
+save_IFS="${IFS}"
+IFS="${IFS}:"
+gettext_dir=
+locale_dir=
+set_echo=false
+
+for dir in $PATH
+do
+  if test -f $dir/gettext \
+     && ($dir/gettext --version >/dev/null 2>&1)
+  then
+    case `$dir/gettext --version 2>&1 | sed 1q` in
+      *GNU*) gettext_dir=$dir
+      set_echo=true
+      break ;;
+    esac
+  fi
+done
+
+if ${set_echo}
+then
+  set_echo=false
+  for dir in $PATH
+  do
+    if test -f $dir/shar \
+       && ($dir/shar --print-text-domain-dir >/dev/null 2>&1)
+    then
+      locale_dir=`$dir/shar --print-text-domain-dir`
+      set_echo=true
+      break
+    fi
+  done
+
+  if ${set_echo}
+  then
+    TEXTDOMAINDIR=$locale_dir
+    export TEXTDOMAINDIR
+    TEXTDOMAIN=sharutils
+    export TEXTDOMAIN
+    echo="$gettext_dir/gettext -s"
+  fi
+fi
+IFS="$save_IFS"
+if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null
+then if (echo -n test; echo 1,2,3) | grep n >/dev/null
+     then shar_n= shar_c='
+'
+     else shar_n=-n shar_c= ; fi
+else shar_n= shar_c='\c' ; fi
+f=shar-touch.$$
+st1=200112312359.59
+st2=123123592001.59
+st2tr=123123592001.5 # old SysV 14-char limit
+st3=1231235901
+
+if touch -am -t ${st1} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st1} && test -f ${f}; then
+  shar_touch='touch -am -t $1$2$3$4$5$6.$7 "$8"'
+
+elif touch -am ${st2} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st2} && test ! -f ${st2tr} && test -f ${f}; then
+  shar_touch='touch -am $3$4$5$6$1$2.$7 "$8"'
+
+elif touch -am ${st3} ${f} >/dev/null 2>&1 && \
+   test ! -f ${st3} && test -f ${f}; then
+  shar_touch='touch -am $3$4$5$6$2 "$8"'
+
+else
+  shar_touch=:
+  echo
+  ${echo} 'WARNING: not restoring timestamps.  Consider getting and
+installing GNU `touch'\'', distributed in GNU coreutils...'
+  echo
+fi
+rm -f ${st1} ${st2} ${st2tr} ${st3} ${f}
+#
+if test ! -d ${lock_dir} ; then :
+else ${echo} "lock directory ${lock_dir} exists"
+     exit 1
+fi
+if mkdir ${lock_dir}
+then ${echo} "x - created lock directory ${lock_dir}."
+else ${echo} "x - failed to create lock directory ${lock_dir}."
+     exit 1
+fi
+# ============= momo.hs ==============
+if test -f 'momo.hs' && ${keep_file}; then
+${echo} "x - SKIPPING momo.hs (file already exists)"
+else
+${echo} "x - extracting momo.hs (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'momo.hs' &&
+{- Author:     JRF
+X   Maintainer: JRF <http://jrf.cocolog-nifty.com/>
+X   Time-stamp: <2011-01-21T06:50:22Z>
+X   License:    Public Domain
+-}
+X
+{- DESCRIPTION
+X
+momo.hs - a story of continuation.
+X
+An example shows anti-intuitive behavior of callCC with double negative.
+X
+-}
+X
+{-# LANGUAGE GADTs, RankNTypes, TypeFamilies, ScopedTypeVariables #-}
+X
+module Momo where
+import System
+import Control.Monad.Cont
+X
+-- higher order logical definition doesn't work in this context.
+--type Absurd = forall a. a
+--type Not a = a -> Absurd
+X
+-- Explanatory (re)definition:
+--  "Sum x y" is the same as "Either a b", and
+--  "Prod x y" is the same as Tuple "(a, b)".
+X
+data Sum x y = InLeft x | InRight y
+X
+data Prod a b = Prod a b
+first :: Prod a b -> a
+first (Prod x y) = x
+second :: Prod a b -> b
+second (Prod x y) = y
+X
+-- The story begins.
+X
+data Special = SomethingSpecial deriving (Eq, Show)
+data Ordinary = SomethingOrdinary deriving (Eq, Show)
+X
+-- The law of excluded middle.
+gigi :: (forall a b r. Cont r (Sum a (a -> Cont r b)))
+gigi = callCC (\k -> return (InRight (\x -> k (InLeft x))));
+X
+liliana :: (forall r. Cont r Ordinary)
+liliana = return SomethingOrdinary
+X
+type Service = Prod Ordinary String
+type Love = Prod Special String
+X
+nino :: (forall a b r. String->(Prod (Service->Cont r a) b)->Cont r a)
+nino spice claimant
+X  = liliana >>= \dish -> ((first claimant) (Prod dish spice))
+X
+finish ishappy experience gotten = let {
+X    dish = first gotten;
+X    spice = second gotten;
+X    happiness = if ishappy then "Happy" else "Unhappy";
+X  } in return (spice ++ experience
+X               ++ happiness ++ " End. Got "
+X               ++ (show dish) ++ ".");
+X
+resistant proof truth
+X  = Prod (\claim -> return (Prod proof (second claim))) truth
+X
+--beppo :: (forall r. ? -> Cont r String)
+beppo = \s -> case s of
+X  {
+X    InRight(query) -> let {
+X       experience = "Search Something...\n";
+X       } in liliana >>= (\answer -> return (resistant answer experience))
+X            >>= (nino "Beg to ")
+X            >>= \(g :: Service) -> finish False experience g;
+X    InLeft(momo) -> let {
+X      experience = second momo;
+X      } in (nino "Order to " momo)
+X           >>= \(g :: Love) -> finish True experience g;
+X  }
+X
+X
+hora :: (forall r. Cont r Special)
+hora = return SomethingSpecial
+X
+--kassiopeia :: (forall r. ? -> Cont r String)
+kassiopeia = \s -> case s of
+X  {
+X    InRight(query) -> let {
+X       experience = "Search Something...\n";
+X       } in hora >>= (\answer -> query (resistant answer experience))
+X            >>= (nino "Beg to ") 
+X            >>= \(g :: Service) -> finish False experience g;
+X    InLeft(momo) -> let {
+X      experience = second momo;
+X      } in (nino "Order to " momo)
+X           >>= \(g :: Love) -> finish True experience g;
+X  }
+X
+main = do
+X  runCont (gigi >>= beppo) putStrLn
+X  runCont (gigi >>= kassiopeia) putStrLn
+SHAR_EOF
+  (set 20 11 01 21 15 50 22 'momo.hs'
+   eval "${shar_touch}") && \
+  chmod 0644 'momo.hs'
+if test $? -ne 0
+then ${echo} "restore of momo.hs failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'momo.hs': 'MD5 check failed'
+       ) << \SHAR_EOF
+ec80af5a147816a9bc374f4efb1b53aa  momo.hs
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'momo.hs'` -ne 2824 && \
+  ${echo} "restoration warning:  size of 'momo.hs' is not 2824"
+  fi
+fi
+# ============= momo_0.hs ==============
+if test -f 'momo_0.hs' && ${keep_file}; then
+${echo} "x - SKIPPING momo_0.hs (file already exists)"
+else
+${echo} "x - extracting momo_0.hs (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'momo_0.hs' &&
+{- Author:     JRF
+X   Maintainer: JRF <http://jrf.cocolog-nifty.com/>
+X   Time-stamp: <2011-01-21T06:49:53Z>
+X   License:    Public Domain
+-}
+X
+{- DESCRIPTION
+X
+momo_0.hs - a story of continuation.
+X
+An example shows anti-intuitive behavior of callCC.
+X
+-}
+X
+{-# LANGUAGE GADTs, RankNTypes, TypeFamilies, ScopedTypeVariables #-}
+X
+module Momo where
+import System
+import Control.Monad.Cont
+X
+-- higher order logical definition doesn't work in this context.
+--type Absurd = forall a. a
+--type Not a = a -> Absurd
+X
+-- Explanatory (re)definition:
+--  "Sum x y" is the same as "Either a b", and
+--  "Prod x y" is the same as Tuple "(a, b)".
+X
+data Sum x y = InLeft x | InRight y
+X
+data Prod a b = Prod a b
+first :: Prod a b -> a
+first (Prod x y) = x
+second :: Prod a b -> b
+second (Prod x y) = y
+X
+-- The story begins.
+X
+data Special = SomethingSpecial deriving (Eq, Show)
+data Ordinary = SomethingOrdinary deriving (Eq, Show)
+X
+-- The law of excluded middle.
+gigi :: (forall a b r. Cont r (Sum a (a -> Cont r b)))
+gigi = callCC(\k -> return (InRight (\x -> k(InLeft(x)))));
+X
+liliana :: (forall r. Cont r Ordinary)
+liliana = return SomethingOrdinary
+X
+nino :: (forall b r. Cont r String)
+nino = gigi >>= \s -> case s of
+X  {
+X    InRight(query) -> let {
+X       experience = "Search Something...\n"
+X       } in liliana >>= (\answer -> return(Prod answer experience))
+X            >>= \(x :: Prod Ordinary String)
+X                -> return (experience 
+X                           ++ "Unhappy End. Got "
+X                           ++ (show (first x)));
+X    InLeft(x:: Prod Special String) ->
+X      return ((second x) ++ "Happy End. Got " ++ (show (first x)));
+X  }
+X
+X
+hora :: (forall r. Cont r Special)
+hora = return SomethingSpecial
+X
+nicola :: (forall r. Cont r String)
+nicola = gigi >>= \s -> case s of
+X  {
+X    InRight(query) -> let {
+X       experience = "Search Something...\n"
+X       } in hora >>= (\answer -> query(Prod answer experience))
+X            >>= \(x :: Prod Ordinary String)
+X                -> return (experience 
+X                           ++ "Unhappy End. Got "
+X                           ++ (show (first x)));
+X    InLeft(x :: Prod Special String) ->
+X      return ((second x) ++ "Happy End. Got " ++ (show (first x)));
+X  }
+X
+main = do
+X  runCont nino putStrLn
+X  runCont nicola putStrLn
+X
+SHAR_EOF
+  (set 20 11 01 21 15 49 53 'momo_0.hs'
+   eval "${shar_touch}") && \
+  chmod 0644 'momo_0.hs'
+if test $? -ne 0
+then ${echo} "restore of momo_0.hs failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'momo_0.hs': 'MD5 check failed'
+       ) << \SHAR_EOF
+016504bc2f3937e5855aeeafb98061e2  momo_0.hs
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'momo_0.hs'` -ne 2274 && \
+  ${echo} "restoration warning:  size of 'momo_0.hs' is not 2274"
+  fi
+fi
+# ============= example_goto.hs ==============
+if test -f 'example_goto.hs' && ${keep_file}; then
+${echo} "x - SKIPPING example_goto.hs (file already exists)"
+else
+${echo} "x - extracting example_goto.hs (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'example_goto.hs' &&
+{- Author:     JRF
+X   Maintainer: JRF <http://jrf.cocolog-nifty.com/>
+X   Time-stamp: <2011-01-17T07:04:19Z>
+X   License:    Public Domain
+-}
+X
+{- DESCRIPTION
+X
+example_goto.hs - an example of continuation.
+X
+An example shows anti-intuitive behavior of callCC using "goto".
+X
+-}
+X
+module Main where
+import System
+import Control.Monad.Cont
+X
+data While a b c = LoopEnd a b
+X                 | LoopStart a b ((While a b c)->c)
+X                 | Label1 a b ((While a b c)->c)
+X                 | Label2 a b ((While a b c)->c)
+X
+looper input output
+X  = (callCC $ \goto ->return (LoopStart input output goto));
+X
+testloop input = (looper input "") >>= \z -> case z of
+X  {
+X    LoopEnd input output -> case input of
+X       {
+X         [] -> return (output ++ " lend ");
+X         c : r -> return (output ++ c ++ " lastnext ");
+X       };
+X    LoopStart input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " lse "));
+X        c : r -> goto (Label1 r (output ++ " lsn " ++ c) goto);
+X      };
+X    Label1 input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " l1e "));
+X        c : r -> goto (Label2 r (output ++ " l1n " ++ c) goto);
+X      };
+X    Label2 input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " l2e "));
+X        c : r -> goto (LoopStart r (output ++ " l2n " ++ c) goto);
+X      };
+X  }
+X
+main = do runCont (testloop ["a", "b", "c", "d"]) putStrLn
+SHAR_EOF
+  (set 20 11 01 17 16 04 19 'example_goto.hs'
+   eval "${shar_touch}") && \
+  chmod 0644 'example_goto.hs'
+if test $? -ne 0
+then ${echo} "restore of example_goto.hs failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'example_goto.hs': 'MD5 check failed'
+       ) << \SHAR_EOF
+e5e0095c9707d40e24833e240e97cd4d  example_goto.hs
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'example_goto.hs'` -ne 1427 && \
+  ${echo} "restoration warning:  size of 'example_goto.hs' is not 1427"
+  fi
+fi
+# ============= example_goto_2.hs ==============
+if test -f 'example_goto_2.hs' && ${keep_file}; then
+${echo} "x - SKIPPING example_goto_2.hs (file already exists)"
+else
+${echo} "x - extracting example_goto_2.hs (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'example_goto_2.hs' &&
+{- Author:     JRF
+X   Maintainer: JRF <http://jrf.cocolog-nifty.com/>
+X   Time-stamp: <2011-01-19T08:08:39Z>
+X   License:    Public Domain
+-}
+X
+{- DESCRIPTION
+X
+example_goto_2.hs - an example of continuation.
+X
+An example shows anti-intuitive behavior of callCC using "goto".
+X
+Th code reduces a big loop to a small loop.
+X
+-}
+X
+module Main where
+import System
+import Control.Monad.Cont
+X
+data While a b c = LoopEnd a b
+X                 | LoopStart a b ((While a b c)->c)
+X                 | Label1 a b ((While a b c)->c)
+X                 | Label2 a b ((While a b c)->c)
+X
+data BigWhile a b c = BLoopEnd a b
+X                    | BLoopStart a b ((Either (While a b c) 
+X                                               (BigWhile a b c))->c)
+X                    | BLabel1 a b ((Either (While a b c) 
+X                                            (BigWhile a b c))->c)
+X                    | BLabel2 a b ((Either (While a b c) 
+X                                            (BigWhile a b c))->c)
+X
+looper input output
+X  = (callCC $ \goto ->return (Right (BLoopStart input output goto)));
+X
+testloop input = (looper input "") >>= \z -> case z of
+X  {
+X    Left z -> case z of
+X       {
+X         LoopEnd input output -> case input of
+X            {
+X              [] -> return (output ++ " rlend ");
+X              c : r -> return (output ++ c ++ " rlastnext ");
+X              };
+X         LoopStart input output goto -> case input of
+X           {
+X             [] -> goto (LoopEnd [] (output ++ " rlse "));
+X             c : r -> goto (Label1 r (output ++ " rlsn " ++ c) goto);
+X             };
+X         Label1 input output goto -> case input of
+X           {
+X             [] -> goto (LoopEnd [] (output ++ " rl1e "));
+X             c : r -> goto (Label2 r (output ++ " rl1n " ++ c) goto);
+X             };
+X         Label2 input output goto -> case input of
+X           {
+X             [] -> goto (LoopEnd [] (output ++ " rl2e "));
+X             c : r -> goto (LoopStart r (output ++ " rl2n " ++ c) goto);
+X             };
+X         };
+X    
+X    Right z -> case z of
+X      {
+X        BLoopEnd input output -> case input of
+X           {
+X             [] -> return (output ++ " llend ");
+X             c : r -> return (output ++ c ++ " llastnext ");
+X             };
+X        BLoopStart input output goto -> case input of
+X          {
+X            [] -> goto (Right (BLoopEnd [] (output ++ " llse ")));
+X            c : r -> goto (Right (BLabel1 r (output ++ " llsn " ++ c) goto));
+X            };
+X        BLabel1 input output goto -> case input of
+X          {
+X            [] -> goto (Right (BLoopEnd [] (output ++ " ll1e ")));
+X            c : r -> goto (Right (BLabel2 r (output ++ " ll1n " ++ c) goto));
+X            };
+X        BLabel2 input output goto -> case input of
+X          {
+X            [] -> goto (Right (BLoopEnd [] (output ++ " ll2e ")));
+X            c : r -> goto (Left (LoopStart r (output ++ " ll2n " ++ c)
+X                                 (\y -> goto (Left y))));
+X            };
+X        };
+X    }
+X
+main = do runCont (testloop ["a", "b", "c", "d", "e"]) putStrLn
+SHAR_EOF
+  (set 20 11 01 19 17 08 39 'example_goto_2.hs'
+   eval "${shar_touch}") && \
+  chmod 0644 'example_goto_2.hs'
+if test $? -ne 0
+then ${echo} "restore of example_goto_2.hs failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'example_goto_2.hs': 'MD5 check failed'
+       ) << \SHAR_EOF
+9eea768e77cd4c010bce1f4ecbe4f267  example_goto_2.hs
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'example_goto_2.hs'` -ne 3023 && \
+  ${echo} "restoration warning:  size of 'example_goto_2.hs' is not 3023"
+  fi
+fi
+# ============= example_goto_3.hs ==============
+if test -f 'example_goto_3.hs' && ${keep_file}; then
+${echo} "x - SKIPPING example_goto_3.hs (file already exists)"
+else
+${echo} "x - extracting example_goto_3.hs (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'example_goto_3.hs' &&
+{- Author:     JRF
+X   Maintainer: JRF <http://jrf.cocolog-nifty.com/>
+X   Time-stamp: <2011-01-23T07:58:06Z>
+X   License:    Public Domain
+-}
+X
+{- DESCRIPTION
+X
+example_goto_3.hs - an example of continuation.
+X
+An example shows awkward behavior of callCC using "goto".
+X
+The idea was to return "goto" with output, but it couldn't under the
+rigid type system.  This code satisfies my intention compromising with it.
+X
+-}
+X
+module Main where
+import System
+import Control.Monad.Cont
+X
+data While a b m c d = LoopEnd a b
+X                       ((While a b m c d)->m (c, a -> b -> (d -> m d) -> m c))
+X                     | LoopStart a b
+X                       ((While a b m c d)->m (c, a -> b -> (d -> m d) -> m c))
+X                     | LoopMain a b
+X                       ((While a b m c d)->m (c, a -> b -> (d -> m d) -> m c))
+X                     | Method1 a b (d -> m d)
+X                       ((While a b m c d)->m (c, a -> b -> (d -> m d) -> m c))
+X                     | Receive1 a b
+X                       ((While a b m c d)->m (c, a -> b -> (d -> m d) -> m c))
+X                     | Dummy
+X
+X
+looper input output
+X  = (callCC $ \goto ->return (LoopStart input output goto));
+X
+runserver input = (looper input "") >>= \z -> case z of
+X  {
+X    LoopEnd input output goto -> case input of
+X       {
+X         [] -> return (output ++ " slend ", 
+X                       (\x y r -> (goto (Method1 x y r goto)) 
+X                                  >>= \(u, v) -> return u));
+X         c : r -> return (output ++ c ++ " slastnext ",
+X                       (\x y r -> (goto (Method1 x y r goto)) 
+X                                  >>= \(u, v) -> return u));
+X       };
+X    LoopStart input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " slse ") goto);
+X        c : r -> goto (LoopStart r (output ++ " slsn " ++ c) goto);
+X      };
+X    
+X    {- receive request form client. -}
+X    Method1 input output ret goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " sm1e ") goto);
+X        c : r -> (if (c == "stop") then
+X                    {- Yes, it can go out, but where to go? -}
+X                   (goto (LoopEnd r (output ++  " sm11e " ++ c) goto))
+X                 else
+X                    {- send result to client. -}
+X                    (ret (output ++ " sm1n " ++ c)) >>= (\y -> goto Dummy));
+X      };
+X  }
+X
+{- server...or, daemon -}
+server = runserver [];
+X
+runclient input = (looper input "") >>= \z -> case z of
+X  {
+X    LoopEnd input output goto -> case input of
+X       {
+X         [] -> return (output ++ " clend ", 
+X                       (\x y r -> (goto (Method1 x y r goto)) 
+X                                  >>= \(u, v) -> return u));
+X         c : r -> return (output ++ c ++ " clastnext ",
+X                       (\x y r -> (goto (Method1 x y r goto)) 
+X                                  >>= \(u, v) -> return u));
+X       };
+X    LoopStart input output goto -> 
+X      {- save output from server. -}
+X      server >>= (\(sout, service)
+X                  -> goto (LoopMain input (sout ++ output) goto));
+X    LoopMain input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " clme ") goto);
+X        {- send [c] to server. -}
+X        c : r -> server >>= (\(sout, service)
+X                             -> (service [c] (output ++ " clmn " ++ c)
+X                                 (\y -> ((goto (Receive1 r y goto))
+X                                         >>= \(u, v) -> return u))))
+X                 >>= (\y -> goto Dummy);
+X      };
+X    
+X    {- receive response form server. -}
+X    Receive1 input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " cr1e ") goto);
+X        c : r -> goto (LoopMain r (output ++ " cr1n " ++ c) goto);
+X      };
+X  }
+X
+main = do runCont ((runclient ["a", "b", "c", "d", "e"])
+X                   >>= \(u, v) -> return u) putStrLn
+X
+{- The code blow fails into infinite loop. -}
+-- main = do runCont ((server >>= (\(c, v) ->
+--                                if (c == " slse  slend ") then
+--                                  (runclient ["a", "b", "stop", "c"])
+--                                else
+--                                  (runclient ["d", "e", "f"])))
+--                    >>= \(u, v) -> return u) putStrLn
+X
+SHAR_EOF
+  (set 20 11 01 23 16 58 06 'example_goto_3.hs'
+   eval "${shar_touch}") && \
+  chmod 0644 'example_goto_3.hs'
+if test $? -ne 0
+then ${echo} "restore of example_goto_3.hs failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'example_goto_3.hs': 'MD5 check failed'
+       ) << \SHAR_EOF
+420da3d8b9d5fc8c02d2d41387b64ae4  example_goto_3.hs
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'example_goto_3.hs'` -ne 4233 && \
+  ${echo} "restoration warning:  size of 'example_goto_3.hs' is not 4233"
+  fi
+fi
+# ============= example_goto_4.hs ==============
+if test -f 'example_goto_4.hs' && ${keep_file}; then
+${echo} "x - SKIPPING example_goto_4.hs (file already exists)"
+else
+${echo} "x - extracting example_goto_4.hs (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'example_goto_4.hs' &&
+{- Author:     JRF
+X   Maintainer: JRF <http://jrf.cocolog-nifty.com/>
+X   Time-stamp: <2011-02-14T07:12:02Z>
+X   License:    Public Domain
+-}
+X
+{- DESCRIPTION
+X
+example_goto_4.hs - an example of continuation.
+X
+This example is a more sophisticated version of "example_goto_3.hs"
+which expresses uselessness of function-value of "goto" with a type variable.
+X
+-}
+X
+module Main where
+import System
+import Control.Monad.Cont
+X
+data While a b m c d = LoopEnd a b
+X                       ((While a b m c d)->m (c, a -> b -> (c -> m d) -> m d))
+X                     | LoopStart a b
+X                       ((While a b m c d)->m (c, a -> b -> (c -> m d) -> m d))
+X                     | LoopMain a b
+X                       ((While a b m c d)->m (c, a -> b -> (c -> m d) -> m d))
+X                     | Method1 a b (c -> m d)
+X                       ((While a b m c d)->m (c, a -> b -> (c -> m d) -> m d))
+X                     | Receive1 a b
+X                       ((While a b m c d)->m (c, a -> b -> (c -> m d) -> m d))
+X                     | Dummy
+X
+X
+looper input output
+X  = (callCC $ \goto ->return (LoopStart input output goto));
+X
+runserver input = (looper input "") >>= \z -> case z of
+X  {
+X    LoopEnd input output goto -> case input of
+X       {
+X         [] -> return (Left (output ++ " slend "), 
+X                       (\x y r -> (goto (Method1 x y r goto)) 
+X                                  >>= \(Right u, v) -> return u));  -- absurd
+X         c : r -> return (Left (output ++ c ++ " slastnext "),
+X                       (\x y r -> (goto (Method1 x y r goto)) 
+X                                  >>= \(Right u, v) -> return u));  -- absurd
+X       };
+X    LoopStart input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " slse ") goto);
+X        c : r -> goto (LoopStart r (output ++ " slsn " ++ c) goto);
+X      };
+X    
+X    {- receive request form client. -}
+X    Method1 input output ret goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " sm1e ") goto);
+X        c : r -> (if (c == "stop") then
+X                    {- Yes, it can go out, but where to go? -}
+X                   (goto (LoopEnd r (output ++  " sm11e " ++ c) goto))
+X                 else
+X                    {- send result to client. -}
+X                    (ret (Left (output ++ " sm1n " ++ c))) >>= (\y -> goto Dummy));
+X      };
+X  }
+X
+{- server...or, daemon -}
+server = runserver [];
+X
+runclient input = (looper input "") >>= \z -> case z of
+X  {
+X    LoopEnd input output goto -> case input of
+X       {
+X         [] -> return (Left (output ++ " clend "), 
+X                       (\x y r -> (goto (Method1 x y r goto)) 
+X                                  >>= \(Right u, v) -> return u)); -- absurd
+X         c : r -> return (Left (output ++ c ++ " clastnext "),
+X                       (\x y r -> (goto (Method1 x y r goto)) 
+X                                  >>= \(Right u, v) -> return u)); -- absurd
+X       };
+X    LoopStart input output goto -> 
+X      {- save output from server. -}
+X      server >>= (\(Left sout, service)
+X                  -> goto (LoopMain input (sout ++ output) goto));
+X    LoopMain input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " clme ") goto);
+X        {- send [c] to server. -}
+X        c : r -> server >>= (\(sout, service)
+X                             -> (service [c] (output ++ " clmn " ++ c)
+X                                 (\(Left y) -> ((goto (Receive1 r y goto))
+X                                         >>= \(Right u, v) -> return u)))) -- absurd
+X                 >>= (\y -> goto Dummy);
+X      };
+X    
+X    {- receive response form server. -}
+X    Receive1 input output goto -> case input of
+X      {
+X        [] -> goto (LoopEnd [] (output ++ " cr1e ") goto);
+X        c : r -> goto (LoopMain r (output ++ " cr1n " ++ c) goto);
+X      };
+X  }
+X
+main = do runCont ((runclient ["a", "b", "c", "d", "e"])
+X                   >>= \(Left u, v) -> return u) putStrLn
+X
+{- The code blow fails into infinite loop. -}
+-- main = do runCont ((server >>= (\(c, v) ->
+--                                if (c == " slse  slend ") then
+--                                  (runclient ["a", "b", "stop", "c"])
+--                                else
+--                                  (runclient ["d", "e", "f"])))
+--                    >>= \(Left u, v) -> return u) putStrLn
+X
+SHAR_EOF
+  (set 20 11 02 14 16 12 02 'example_goto_4.hs'
+   eval "${shar_touch}") && \
+  chmod 0644 'example_goto_4.hs'
+if test $? -ne 0
+then ${echo} "restore of example_goto_4.hs failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'example_goto_4.hs': 'MD5 check failed'
+       ) << \SHAR_EOF
+969604e7e160e2da365115cb51521d4a  example_goto_4.hs
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'example_goto_4.hs'` -ne 4315 && \
+  ${echo} "restoration warning:  size of 'example_goto_4.hs' is not 4315"
+  fi
+fi
+# ============= README.momo_hs.txt ==============
+if test -f 'README.momo_hs.txt' && ${keep_file}; then
+${echo} "x - SKIPPING README.momo_hs.txt (file already exists)"
+else
+${echo} "x - extracting README.momo_hs.txt (text)"
+  sed 's/^X//' << 'SHAR_EOF' > 'README.momo_hs.txt' &&
+X
+X
+X    momo.hs & example_goto.hs
+X    Haskell で callCC を使ったサンプルコード集。
+X
+X    (このファイルの作成：2011-01-20。)
+X
+X
+1. 記事＆連絡先
+X
+X《時間泥棒の夕べ》
+http://jrf.cocolog-nifty.com/column/2011/01/post-1.html
+X
+X《Haskell の callCC で goto を作る》
+http://jrf.cocolog-nifty.com/software/2011/01/post-2.html
+X
+X連絡は記事にコメントしてください。(サーバーにスパムと判断されたらごめ
+Xんなさい。)
+X
+X
+2. FILES
+X
+X  * momo_0.hs
+X  * momo.hs
+X  * example_goto.hs
+X  * example_goto_2.hs
+X  * example_goto_3.hs
+X  * example_goto_4.hs
+X
+Xファイルの実行結果等は、上記の記事をご参照ください。
+X
+X
+(This file was written in Japanese/UTF8.)
+SHAR_EOF
+  (set 20 11 02 14 16 14 03 'README.momo_hs.txt'
+   eval "${shar_touch}") && \
+  chmod 0644 'README.momo_hs.txt'
+if test $? -ne 0
+then ${echo} "restore of README.momo_hs.txt failed"
+fi
+  if ${md5check}
+  then (
+       ${MD5SUM} -c >/dev/null 2>&1 || ${echo} 'README.momo_hs.txt': 'MD5 check failed'
+       ) << \SHAR_EOF
+b8f27aecc6e73bfa321750a960d63083  README.momo_hs.txt
+SHAR_EOF
+  else
+test `LC_ALL=C wc -c < 'README.momo_hs.txt'` -ne 728 && \
+  ${echo} "restoration warning:  size of 'README.momo_hs.txt' is not 728"
+  fi
+fi
+if rm -fr ${lock_dir}
+then ${echo} "x - removed lock directory ${lock_dir}."
+else ${echo} "x - failed to remove lock directory ${lock_dir}."
+     exit 1
+fi
+exit 0
