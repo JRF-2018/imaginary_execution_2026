@@ -15,3 +15,4 @@
 | Kingman, "The coalescent", Stoch. Proc. Appl. 13(3), 235–248, 1982 | ✔ | DOI 10.1016/0304-4149(82)90011-4(0.2.0 で追加・照合) |
 | Deutsch 1991; Renou ら 2021; Lean / mathlib | ◯ | report0 |
 | JRF の日記 [cocolog:95231673] 2025-01-12 | ✔ | AboutmeLog.txt で本文を確認 |
+| Goldberg, Deb, "A comparative analysis of selection schemes used in genetic algorithms", Foundations of Genetic Algorithms, ed. Rawlins, Morgan Kaufmann, 1991 | △ | 本文の写し(UNR の講義資料の PDF)で著者・題・takeover time の導入を確認。頁(69–93 とされることが多い)は確認できなかったので書かない(0.2.2) |

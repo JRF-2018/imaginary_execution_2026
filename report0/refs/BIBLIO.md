@@ -31,3 +31,4 @@
 | de Moura, Ullrich, "The Lean 4 theorem prover and programming language", CADE-28, LNCS 12699, 2021; The mathlib Community, "The Lean mathematical library", CPP 2020 | ◯ | 付録で使用。個別には照合していない |
 | Boehm, Demsky, "Outlawing ghosts: avoiding out-of-thin-air results", MSPC 2014 | ✔ | DOI 10.1145/2618128.2618134(0.3.1 で追加) |
 | Batty, Memarian, Nienhuis, Pichon-Pharabod, Sewell, "The problem of programming language concurrency semantics", ESOP 2015, LNCS 9032, 283–307 | ✔ | DOI 10.1007/978-3-662-46669-8_12。候補実行ごとの条件では thin-air 問題が解けないことを示す(0.3.1 で追加) |
+| OEIS A027907・A002426・A082758 | ✔ | OEIS の検索で 1, 3, 19, 141, 1107, 8953 が A082758 に一致することを確認(0.4.2)。A002426 の偶数番目との一致と A027907 との一致は計算で確認 |

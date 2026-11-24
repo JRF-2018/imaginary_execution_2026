@@ -15,7 +15,9 @@ def code(s):
 md(r"""
 # 時間ループと最適化 ―― 虚の固定点・反復・コピーと破棄
 
-(Version 0.2.1)
+(Version 0.2.2)
+
+**0.2.2 での変更**: §4 に、進化計算で知られている選択の強さと多様性の釣り合い(takeover time、Goldberg & Deb 1991)との関係を書いた。地平で切り換わること自体はこの分野ではよく知られた現象の一つで、この稿で新しいのは虚実行の木との対応と、切り換わる地平の大きさの観察である。
 
 **0.2.1 での変更**: 読み直して、§4.2 の実験の説明を 0.2.0 の実験に合わせ、§3.1 に report0 の定理 4・report2 の定理 E′ との関係を足し、§6 の表と今後の課題を report0〜report2 の現在の結果に合わせた。
 
@@ -406,6 +408,8 @@ print(f"({time.time() - t0:.0f} 秒)")
 md(r"""
 切り換わる地平 $T^*$ は、どの大きさでも **山頂に着くまでの時間の約 0.4 倍** だった。地平がそれより短ければ、独立な世界はまだ山の途中にいて、良い世界をコピーして時間を集中する方が得である。地平がそれより長ければ、独立な世界はそれぞれ山頂に着けるので、多くの独立な山頂を持つ方が得である。**どれだけの虚(コピー)を許すべきかは、使える時間と、一つの実実行が自力で定常状態(山頂)に着くまでの時間の比で決まる。**
 
+**既知の話との関係.** 選択(コピー)を強めると集団の多様性が失われ、局所的な山に早く集まってしまう(早すぎる収束)ことは、遺伝的アルゴリズムの分野でよく知られている。Goldberg & Deb(1991)は、選択だけを繰り返したとき最良の個体が集団全体を占めるまでの時間(**takeover time**)で、選択の方式の強さを比べた。二つから良い方を選ぶトーナメント選択なら、takeover time は集団の大きさ $K$ の対数程度である($K = 20$ なら数世代)。ここでの $x = 1$ はその強い選択にあたり、$x$ を小さくすると takeover time は $1/x$ 倍ほどに延びる。最適なコピーの量が地平で切り換わることは、この「選択の速さ」と「各世界が自力で登る速さ」の釣り合いとして理解できる。したがって、地平で切り換わること自体は新しい発見ではない。この稿で付け加えたのは、それを虚実行の木(系譜)の言葉で読むことと、切り換わる地平が山頂に着く時間の約 0.4 倍だったという、この条件での観察である。
+
 系譜の木を見ると、この違いがわかる。最後に残った世界の祖先をさかのぼり、各時刻に何本の系統が生き残っているか(最後の世界たちの共通祖先がいくつあるか)を数える。
 """)
 
@@ -509,7 +513,7 @@ JRF が夢見た「虚数のような数学的な概念拡張」と、このレ�
 ### 6.3 今後の課題
 
 1. **メビウス変換以外の時間ループ.** 一般の(非線形の)写像の楕円型不動点と、実の振る舞い(準周期・カオス)との関係。
-2. **地平に応じたコピーの予定表.** 切り換わる地平が山頂に着く時間の約 0.4 倍になる理由の理論(この稿では実験による観察にとどまる)。粒子フィルタの系譜の理論(Del Moral 2004)との接続。
+2. **地平に応じたコピーの予定表.** 切り換わる地平が山頂に着く時間の約 0.4 倍になる理由の理論(この稿では実験による観察にとどまる)。takeover time の理論(Goldberg & Deb 1991 以来)と、山登りの時間の理論を組み合わせれば説明できるはずである。粒子フィルタの系譜の理論(Del Moral 2004)との接続。
 3. **勾配と選択の組み合わせ.** 各世界の中の勾配法(実実行の最適化)と、世界のコピーと破棄(虚実行の木)を組み合わせた最適化の定式化。JRF の「主体が切り換わる最適化」の数理。
 4. **callCC の意味論.** §3 の反復は再実行による callCC(report2 §8)で書いた。callCC そのものの意味論との一致の形式化は、report2 の今後の課題とした。
 """)
@@ -541,6 +545,7 @@ md(r"""
 - B. T. Lowerre, *The HARPY Speech Recognition System*, PhD thesis, Carnegie Mellon University, 1976(ビームサーチ)。
 - S. Kauffman, S. Levin, "Towards a general theory of adaptive walks on rugged landscapes", *Journal of Theoretical Biology* 128(1), 11–45, 1987(NK 景観)。
 - N. J. Gordon, D. J. Salmond, A. F. M. Smith, "Novel approach to nonlinear/non-Gaussian Bayesian state estimation", *IEE Proceedings F* 140(2), 107–113, 1993(粒子フィルタ)。
+- D. E. Goldberg, K. Deb, "A comparative analysis of selection schemes used in genetic algorithms", in G. J. E. Rawlins (ed.), *Foundations of Genetic Algorithms*, Morgan Kaufmann, 1991(takeover time)。
 - P. Del Moral, *Feynman–Kac Formulae: Genealogical and Interacting Particle Systems with Applications*, Springer, New York, 2004(粒子の系譜の木)。
 - J. F. C. Kingman, "The coalescent", *Stochastic Processes and their Applications* 13(3), 235–248, 1982(合着)。
 
